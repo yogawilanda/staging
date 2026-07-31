@@ -11,4 +11,6 @@ Route::prefix('v1')->group(function () {
     // Pastikan endpoint signaling ini sesuai dengan fetch() JS
     Route::post('/signal/send', [MatchmakingController::class, 'sendSignal']);
     Route::post('/signal/get', [MatchmakingController::class, 'getSignals']);
+    // Route::post('/v1/signal/cleanup', [MatchmakingController::class, 'cleanup']);
+    Route::post('/signal/cleanup', [MatchmakingController::class, 'cleanup']);
 });

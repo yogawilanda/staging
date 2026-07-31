@@ -188,4 +188,41 @@ class MatchmakingController extends Controller
             'signals' => $signals
         ]);
     }
+
+    public function cleanup(Request $request)
+    {
+        $token = $request->input('session_token');
+
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Token required'], 400);
+        }
+
+        // 1. Cari data user yang mau cleanup
+        $currentUser = DB::table('active_matchmaking')->where('session_token', $token)->first();
+
+        if ($currentUser && !empty($currentUser->paired_with)) {
+            // Reset status lawan mainnya tanpa kolom role
+            DB::table('active_matchmaking')
+                ->where('session_token', $currentUser->paired_with)
+                ->orWhere('id', $currentUser->paired_with)
+                ->update([
+                    'status' => 'waiting',
+                    'paired_with' => null,
+                ]);
+        }
+
+        // 2. Hapus sinyal terkait
+        DB::table('signals')
+            ->where('sender_session', $token)
+            ->orWhere('receiver_session', $token)
+            ->delete();
+
+        // 3. Hapus data matchmaking user ini
+        DB::table('active_matchmaking')
+            ->where('session_token', $token)
+            ->orWhere('paired_with', $token)
+            ->delete();
+
+        return response()->json(['status' => 'cleaned']);
+    }
 }

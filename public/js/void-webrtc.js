@@ -142,3 +142,16 @@ async function sendSignal(receiverSession, type, payload) {
 		})
 	});
 }
+
+async function cleanupOldSession() {
+    try {
+        await fetch('/api/v1/signal/cleanup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ session_token: sessionToken })
+        });
+        console.log('[VOID//CLEANUP] Sesi lama berhasil dibersihkan dari DB.');
+    } catch (e) {
+        console.error('[VOID//CLEANUP_ERROR]', e);
+    }
+}

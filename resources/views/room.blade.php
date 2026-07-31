@@ -213,8 +213,11 @@
         const pc = new RTCPeerConnection(rtcConfig);
 
         // 2. Lifecycle
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('sessionIdDisplay').innerText = `SESSION ID: #${sessionToken.substring(0, 10).toUpperCase()}`;
+
+            await cleanupOldSession();
+
             initMicrophone();
         });
 
