@@ -21,14 +21,32 @@ var callsign = document.querySelector('#callsign')?.value || window.CALLSIGN_OVE
 var countryCode = document.querySelector('#country_code')?.value || window.COUNTRY_OVERRIDE || 'ID';
 
 // Minimal RTC config; void-webrtc.js may create its own peer connections
+// var rtcConfig = {
+//     iceServers: [
+//         // { urls: 'stun:stun.l.google.com:19302' },
+//         // { urls: 'stun:stun1.l.google.com:19302' },
+//         // { urls: 'stun:stun2.l.google.com:19302' },
+//         // { urls: 'stun:stun3.l.google.com:19302' },
+
+//         // ini bisa, tapi harus wifi yang sama
+//         {
+//             urls: 'turn:free.expressturn.com:3478',
+//             username: '000000002100976823',
+//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+//         }
+//     ]
+// };
+
 var rtcConfig = {
     iceServers: [
-        // { urls: 'stun:stun.l.google.com:19302' },
-        // { urls: 'stun:stun1.l.google.com:19302' },
-        // { urls: 'stun:stun2.l.google.com:19302' },
-        // { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun.l.google.com:19302' },
         {
-            urls: 'turn:free.expressturn.com:3478',
+            urls: 'turn:free.expressturn.com:443', // Pakai port 443
+            username: '000000002100976823',
+            credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+        },
+        {
+            urls: 'turns:free.expressturn.com:443', // Pakai turns (TLS) port 443
             username: '000000002100976823',
             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
         }
