@@ -96,12 +96,15 @@ pc.addEventListener('negotiationneeded', async () => {
         pc.getSenders().forEach(sender => {
             if (sender.track && sender.track.kind === 'audio') {
                 const params = sender.getParameters();
-                if (params.encodings) {
-                    params.encodings.forEach(enc => {
-                        enc.maxBitrate = 24000;
-                    });
-                    sender.setParameters(params).catch(e => console.error(e));
+                
+                // Jika encodings kosong, buat array objek baru secara manual
+                if (!params.encodings || params.encodings.length === 0) {
+                    params.encodings = [{}];
                 }
+                
+                params.encodings[0].maxBitrate = 24000;
+                
+                sender.setParameters(params).catch(e => console.error("Error set parameters:", e));
             }
         });
     } catch (err) {
