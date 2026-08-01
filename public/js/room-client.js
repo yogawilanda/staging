@@ -81,39 +81,6 @@ var rtcConfig = {
     ],
 };
 
-const stream = await navigator.mediaDevices.getUserMedia({
-    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-    video: false
-});
-
-const pc = new RTCPeerConnection(rtcConfig);
-stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-// 2. AMANKAN CARA BATASI BITRATE: 
-// Pindahkan ke event ini supaya parameter dijalankan saat transceiver sudah siap
-pc.addEventListener('negotiationneeded', async () => {
-    try {
-        pc.getSenders().forEach(sender => {
-            if (sender.track && sender.track.kind === 'audio') {
-                const params = sender.getParameters();
-                
-                // Jika encodings kosong, buat array objek baru secara manual
-                if (!params.encodings || params.encodings.length === 0) {
-                    params.encodings = [{}];
-                }
-                
-                params.encodings[0].maxBitrate = 24000;
-                
-                sender.setParameters(params).catch(e => console.error("Error set parameters:", e));
-            }
-        });
-    } catch (err) {
-        console.error("Gagal set bitrate:", err);
-    }
-});
-
-
-
 // expose small helper used by presence.js
 function _isCallActiveRef() { return isCallActive; }
 
