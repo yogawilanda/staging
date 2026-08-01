@@ -11,6 +11,12 @@
     @endpush
 
     <span id="statusTitle" class=""></span>
+
+    <script>
+        // Provide server-side callsign & country to client JS (lightweight)
+        window.CALLSIGN_OVERRIDE = @json(session('callsign', 'GHOST_OPERATOR'));
+        window.COUNTRY_OVERRIDE = @json(session('country_code', 'ID'));
+    </script>
     <!-- Main Call Grid Layout -->
     <main class="w-full max-w-6xl mx-auto my-auto py-2 z-10 grid md:grid-cols-12 gap-6 items-start">
 
@@ -50,6 +56,7 @@
                         ?
                     </div>
                     <div class="text-center">
+                        <!-- Hapus session PHP di sini, biarkan dikontrol JS -->
                         <div id="peer-callsign" class="text-sm font-bold text-zinc-500 tracking-wider font-mono animate-pulse">
                             SEARCHING...
                         </div>
@@ -119,133 +126,6 @@
     <!-- Hidden Audio Player -->
     <audio id="remote-audio" autoplay playsinline></audio>
 
-    <!-- Import JS Modules -->
-    <script src="{{ asset('js/void-ui.js') }}"></script>
-    <script src="{{ asset('js/void-webrtc.js') }}"></script>
+    <!-- Scripts are loaded from the layout; room-specific client logic moved to public/js/room-client.js -->
 
-    <script>
-        // Core State Variables
-        let isMuted = false;
-        let isCallActive = true;
-        let localStream = null;
-        let peerConnection = null;
-        let currentPeerSession = null;
-        let pollInterval = null;
-        let isMatchedUI = false;
-        let isMatched = false;
-        let pendingCandidates = [];
-
-        // Session Token Management
-        let sessionToken = sessionStorage.getItem('void_session_token');
-        if (!sessionToken) {
-            sessionToken = 'sec_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
-            sessionStorage.setItem('void_session_token', sessionToken);
-        }
-
-        const callsign = "{{ session('callsign', 'GHOST_OPERATOR') }}";
-        const countryCode = "{{ session('country_code', 'ID') }}";
-
-        const rtcConfig = {
-            iceServers: [{
-                    urls: 'stun:stun.l.google.com:19302'
-                },
-                {
-                    urls: 'stun:stun1.l.google.com:19302'
-                },
-                {
-                    urls: 'stun:stun2.l.google.com:19302'
-                },
-                {
-                    urls: 'stun:stun3.l.google.com:19302'
-                }
-            ]
-        };
-
-        const pc = new RTCPeerConnection(rtcConfig);
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('sessionIdDisplay').innerText = `SESSION ID: #${sessionToken.substring(0, 10).toUpperCase()}`;
-            await cleanupOldSession();
-            initMicrophone();
-        });
-
-        async function initMicrophone() {
-            try {
-                if (localStream) return;
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                    video: false
-                });
-                startHeartbeatAndMatchmaking();
-            } catch (err) {
-                alert('[ERROR] Gagal mengakses mikrofon. Harap berikan izin akses mic!');
-                console.error(err);
-            }
-        }
-
-        function startHeartbeatAndMatchmaking() {
-            pollInterval = setInterval(async () => {
-                if (!isCallActive) return;
-
-                try {
-                    await fetch('/api/v1/ping', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            session_token: sessionToken,
-                            callsign: callsign,
-                            country_code: countryCode
-                        })
-                    });
-                } catch (err) {
-                    console.error('[PING_ERROR]', err);
-                }
-
-                checkPendingSignals();
-
-                if (!isMatched) {
-                    try {
-                        const res = await fetch('/api/v1/matchmake', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                session_token: sessionToken,
-                                callsign: callsign,
-                                country_code: countryCode
-                            })
-                        });
-                        const data = await res.json();
-
-                        if (data.status === 'matched' && data.peer) {
-                            isMatched = true;
-                            currentPeerSession = data.peer.id;
-                            updateMatchedUI(data.peer);
-
-                            if (data.role === 'initiator') {
-                                initiateCall(data.peer.id);
-                            }
-                        }
-                    } catch (err) {
-                        console.error('[MATCHMAKING_ERROR]', err);
-                    }
-                }
-            }, 2000);
-        }
-
-        window.addEventListener('beforeunload', () => {
-            const data = JSON.stringify({
-                session_token: sessionToken
-            });
-            const blob = new Blob([data], {
-                type: 'application/json'
-            });
-            navigator.sendBeacon('/api/v1/leave', blob);
-        });
-    </script>
 </x-layouts.app>

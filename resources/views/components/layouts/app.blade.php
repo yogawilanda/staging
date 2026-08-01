@@ -78,6 +78,10 @@
     </footer>
 
 </body>
+<!-- Core client scripts (presence, UI, WebRTC, and room client) -->
+<script src="{{ asset('js/presence.js') }}"></script>
 <script src="{{ asset('js/void-ui.js') }}"></script>
+<script src="{{ asset('js/void-webrtc.js') }}"></script>
+<script src="{{ asset('js/room-client.js') }}"></script>
 
 </html>

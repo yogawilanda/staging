@@ -5,8 +5,10 @@ function createPeerConnection(targetPeerId) {
 	peerConnection = new RTCPeerConnection(rtcConfig);
 
 	// Ambil track dari localStream
-	if (localStream) {
+	if (typeof localStream !== 'undefined' && localStream) {
+		console.log('[VOID//WEBRTC] Adding local tracks to PeerConnection, stream id=', localStream.id, localStream.getAudioTracks());
 		localStream.getTracks().forEach(track => {
+			console.log('[VOID//WEBRTC] addTrack', track.kind, 'enabled=', track.enabled, 'id=', track.id);
 			peerConnection.addTrack(track, localStream);
 		});
 	} else {
@@ -18,8 +20,11 @@ function createPeerConnection(targetPeerId) {
 		console.log('[VOID//WEBRTC] ONTRACK TRIGGERED!', event.streams);
 		const remoteAudio = document.getElementById('remote-audio');
 		if (remoteAudio && event.streams[0]) {
+			console.log('[VOID//WEBRTC] Attaching remote stream id=', event.streams[0].id, event.streams[0]);
 			remoteAudio.srcObject = event.streams[0];
-			remoteAudio.play().catch(e => console.error("Autoplay blocked:", e));
+			remoteAudio.muted = false;
+			remoteAudio.volume = 1.0;
+			remoteAudio.play().then(()=> console.log('[VOID//WEBRTC] remote audio playing')).catch(e => console.error("Autoplay blocked or play failed:", e));
 		}
 	};
 

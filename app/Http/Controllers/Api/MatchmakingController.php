@@ -19,7 +19,10 @@ class MatchmakingController extends Controller
             'session_token' => 'required|string|max:64',
             'callsign'      => 'required|string|max:50',
             'country_code'  => 'nullable|string|max:10',
+            'visitor'       => 'nullable|boolean',
         ]);
+
+        $isVisitor = isset($validated['visitor']) && $validated['visitor'];
 
         $ipHash = hash('sha256', $request->ip());
 
@@ -32,7 +35,8 @@ class MatchmakingController extends Controller
                 'callsign'      => $validated['callsign'],
                 'country_code'  => $validated['country_code'] ?? 'ID',
                 'ip_hash'       => $ipHash,
-                'status'        => 'waiting',
+                // mark visitors differently so they aren't eligible for matchmaking
+                'status'        => $isVisitor ? 'visitor' : 'waiting',
                 'last_ping_at'  => now(),
             ]);
         } else {
@@ -41,6 +45,8 @@ class MatchmakingController extends Controller
                 'country_code' => $validated['country_code'] ?? 'ID',
                 'ip_hash'      => $ipHash,
                 'last_ping_at' => now(),
+                // if a visitor becomes an active caller, promote status to waiting
+                'status'       => $isVisitor ? ($user->status ?? 'visitor') : 'waiting',
             ]);
         }
 
@@ -80,14 +86,28 @@ class MatchmakingController extends Controller
                 ->first();
 
             if ($peer) {
+                // Tentukan role secara dinamis berdasarkan perbandingan token (alfanumerik) agar konsisten tanpa kolom database
+                $role = ($mySessionToken < $peer->session_token) ? 'initiator' : 'receiver';
+
                 return response()->json([
                     'status' => 'matched',
-                    'role'   => $mySession->role ?? 'receiver',
+                    'role'   => $role,
                     'peer'   => [
                         'id'           => $peer->session_token,
                         'callsign'     => $peer->callsign ?? 'Anon_Peer',
                         'country_code' => $peer->country_code ?? 'ID',
                     ]
+                ]);
+            } else {
+                // KUNCI UTAMA: Jika partner-nya sudah lenyap dari DB, reset status kita jadi searching/disconnected!
+                $mySession->update([
+                    'status'      => 'waiting',
+                    'paired_with' => null,
+                ]);
+
+                return response()->json([
+                    'status' => 'disconnected',
+                    'message' => 'Peer has disconnected.'
                 ]);
             }
         }
@@ -104,18 +124,18 @@ class MatchmakingController extends Controller
             $mySession->update([
                 'status'      => 'matched',
                 'paired_with' => $peer->session_token,
-                'role'        => 'initiator',
             ]);
 
             $peer->update([
                 'status'      => 'matched',
                 'paired_with' => $mySessionToken,
-                'role'        => 'receiver',
             ]);
+
+            $role = ($mySessionToken < $peer->session_token) ? 'initiator' : 'receiver';
 
             return response()->json([
                 'status' => 'matched',
-                'role'   => 'initiator',
+                'role'   => $role,
                 'peer'   => [
                     'id'           => $peer->session_token,
                     'callsign'     => $peer->callsign ?? 'Anon_Peer',
@@ -125,6 +145,34 @@ class MatchmakingController extends Controller
         }
 
         return response()->json(['status' => 'searching']);
+    }
+
+    /**
+     * Endpoint /api/v1/active_counts
+     * Returns JSON counts for active users, visitors, and callers (recent pings window)
+     */
+    public function activeCounts(Request $request)
+    {
+        $windowSeconds = 15;
+
+        $total = ActiveMatchmaking::where('last_ping_at', '>=', now()->subSeconds($windowSeconds))->count();
+
+        $visitors = ActiveMatchmaking::where('last_ping_at', '>=', now()->subSeconds($windowSeconds))
+            ->where('status', 'visitor')
+            ->count();
+
+        $callers = ActiveMatchmaking::where('last_ping_at', '>=', now()->subSeconds($windowSeconds))
+            ->whereIn('status', ['waiting','matched'])
+            ->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total' => $total,
+                'visitors' => $visitors,
+                'callers' => $callers,
+            ],
+        ]);
     }
 
     /**
@@ -145,7 +193,6 @@ class MatchmakingController extends Controller
                     ->update([
                         'status'      => 'waiting',
                         'paired_with' => null,
-                        'role'        => null,
                     ]);
             }
 
@@ -196,11 +243,9 @@ class MatchmakingController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Token required'], 400);
         }
 
-        // 1. Cari data user yang mau cleanup
         $currentUser = DB::table('active_matchmaking')->where('session_token', $token)->first();
 
         if ($currentUser && !empty($currentUser->paired_with)) {
-            // Reset status lawan mainnya tanpa kolom role
             DB::table('active_matchmaking')
                 ->where('session_token', $currentUser->paired_with)
                 ->orWhere('id', $currentUser->paired_with)
@@ -210,13 +255,11 @@ class MatchmakingController extends Controller
                 ]);
         }
 
-        // 2. Hapus sinyal terkait
         DB::table('signals')
             ->where('sender_session', $token)
             ->orWhere('receiver_session', $token)
             ->delete();
 
-        // 3. Hapus data matchmaking user ini
         DB::table('active_matchmaking')
             ->where('session_token', $token)
             ->orWhere('paired_with', $token)
