@@ -27,8 +27,11 @@ var rtcConfig = {
         // { urls: 'stun:stun1.l.google.com:19302' },
         // { urls: 'stun:stun2.l.google.com:19302' },
         // { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun.voipbuster.com:3478' },
-        { urls: 'stun:stun.sipnet.net:3478' }
+        {
+            urls: 'turn:free.expressturn.com:3478',
+            username: '000000002100976823',
+            credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+        }
     ]
 };
 
