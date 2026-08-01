@@ -20,12 +20,12 @@
 
         <div class="flex items-center gap-3 text-xs text-zinc-500">
             <div class="flex items-center gap-2">
-                <span class="text-emerald-600">Active: <span id="nav-active-count" class="font-bold">{{ $activeUserCounter }}</span></span>
+                <span class="text-emerald-600">Active: <span id="nav-active-count" class="font-bold">{{ $activeUserCounter ?? 0 }}</span></span>
                 <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
             </div>
             <div class="hidden sm:flex items-center gap-2 text-[11px] text-zinc-500">
-                <span class="text-zinc-400">Visitors: <span id="nav-visitor-count" class="text-white font-bold">{{ $visitorCount }}</span></span>
-                <span class="text-zinc-400">Callers: <span id="nav-caller-count" class="text-white font-bold">{{ $callerCount }}</span></span>
+                <span class="text-zinc-400">Visitors: <span id="nav-visitor-count" class="text-white font-bold">{{ $visitorCount ?? 0 }}</span></span>
+                <span class="text-zinc-400">Callers: <span id="nav-caller-count" class="text-white font-bold">{{ $callerCount ?? 0 }}</span></span>
             </div>
         </div>
 
