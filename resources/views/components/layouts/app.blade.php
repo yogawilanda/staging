@@ -78,7 +78,8 @@
     </footer>
 
 </body>
-<!-- Core client scripts (presence, UI, WebRTC, and room client) -->
+<!-- Core client scripts (logger, presence, UI, WebRTC, and room client) -->
+<script src="{{ asset('js/logger.js') }}"></script>
 <script src="{{ asset('js/presence.js') }}"></script>
 <script src="{{ asset('js/void-ui.js') }}"></script>
 <script src="{{ asset('js/void-webrtc.js') }}"></script>
