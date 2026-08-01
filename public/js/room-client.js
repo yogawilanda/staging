@@ -53,6 +53,7 @@ var countryCode = document.querySelector('#country_code')?.value || window.COUNT
 //     ]
 // };
 var rtcConfig = {
+    iceTransportPolicy: 'relay',
     iceServers: [
         {
             urls: "stun:stun.relay.metered.ca:80",
