@@ -23,10 +23,12 @@ var countryCode = document.querySelector('#country_code')?.value || window.COUNT
 // Minimal RTC config; void-webrtc.js may create its own peer connections
 var rtcConfig = {
     iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' }
+        // { urls: 'stun:stun.l.google.com:19302' },
+        // { urls: 'stun:stun1.l.google.com:19302' },
+        // { urls: 'stun:stun2.l.google.com:19302' },
+        // { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun.voipbuster.com:3478' },
+        { urls: 'stun:stun.sipnet.net:3478' }
     ]
 };
 
