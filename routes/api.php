@@ -8,9 +8,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/matchmake', [MatchmakingController::class, 'matchmake']);
     Route::post('/leave', [MatchmakingController::class, 'leave']);
     
-    // Pastikan endpoint signaling ini sesuai dengan fetch() JS
+    // endpoint signaling after matchmaking is met.
     Route::post('/signal/send', [MatchmakingController::class, 'sendSignal']);
     Route::post('/signal/get', [MatchmakingController::class, 'getSignals']);
-    // Route::post('/v1/signal/cleanup', [MatchmakingController::class, 'cleanup']);
     Route::post('/signal/cleanup', [MatchmakingController::class, 'cleanup']);
 });

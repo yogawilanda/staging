@@ -1,76 +1,28 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<x-layouts.app>
+    <x-slot:title>VOID // CALLS</x-slot:title>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>VOID CALLS // 1-on-1 Transmission</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    @push('styles')
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
-
-        body {
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        .font-pixel {
-            font-family: 'VT323', monospace;
-        }
-
-        .scanline {
-            background: linear-gradient(to bottom,
-                    rgba(255, 255, 255, 0),
-                    rgba(255, 255, 255, 0) 50%,
-                    rgba(0, 0, 0, 0.3) 50%,
-                    rgba(0, 0, 0, 0.3));
-            background-size: 100% 4px;
-        }
-
-        .crt-glow {
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-        }
-
         .speaking {
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
             border-color: #10b981 !important;
         }
     </style>
-</head>
+    @endpush
 
-<body class="bg-black text-zinc-300 min-h-screen flex flex-col justify-between p-4 md:p-6 relative overflow-x-hidden selection:bg-white selection:text-black">
-
-    <!-- CRT Overlay -->
-    <div class="pointer-events-none fixed inset-0 z-50 scanline opacity-40"></div>
-
-    <!-- Top Status Bar -->
-    <header class="w-full max-w-6xl mx-auto flex items-center justify-between border-b border-zinc-800 pb-3 z-10">
-        <div class="flex items-center gap-3">
-            <span id="statusPing" class="w-3 h-3 bg-yellow-500 animate-ping rounded-full"></span>
-            <span id="statusTitle" class="font-pixel text-xl tracking-widest text-white crt-glow">VOID//SEARCHING</span>
-            <span class="text-xs text-zinc-600">|</span>
-            <span class="text-xs text-zinc-400 font-mono">1-ON-1 DIRECT FREQUENCY</span>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <div class="text-xs text-zinc-500 font-mono hidden sm:block">
-                PING: <span class="text-emerald-400">18ms</span>
-            </div>
-        </div>
-    </header>
-
+    <span id="statusTitle" class=""></span>
     <!-- Main Call Grid Layout -->
-    <main class="w-full max-w-6xl mx-auto my-auto py-6 z-10 grid md:grid-cols-12 gap-6 items-start">
+    <main class="w-full max-w-6xl mx-auto my-auto py-2 z-10 grid md:grid-cols-12 gap-6 items-start">
 
         <!-- Left Side: 1-on-1 Call Peers (8 Cols) -->
         <div class="md:col-span-8 flex flex-col gap-4">
 
             <div class="flex justify-between items-center text-xs text-zinc-500 font-mono border-b border-zinc-900 pb-2">
                 <span id="sessionText">SEARCHING FOR PEER...</span>
-                <span class="text-emerald-500">E2E ENCRYPTED</span>
+                <!-- <span class="text-xs text-zinc-600">|</span> -->
+                <!-- <span class="text-emerald-500">E2E ENCRYPTED</span> -->
+                <span class="text-xs text-zinc-600">|</span>
+                <span class="text-xs text-zinc-400">1-ON-1 DIRECT FREQUENCY</span>
             </div>
 
             <!-- 1-on-1 Grid Slots -->
@@ -131,7 +83,7 @@
         </div>
 
         <!-- Right Side: Terminal Log & Live Text Chat (4 Cols) -->
-        <div class="md:col-span-4 border border-zinc-800 bg-zinc-950 p-4 flex flex-col gap-4 h-[420px] relative">
+        <div class="md:col-span-4 border border-zinc-800 bg-zinc-950 p-4 flex flex-col gap-4 h-105 relative">
 
             <div class="flex justify-between items-center text-xs text-zinc-500 border-b border-zinc-900 pb-2">
                 <span class="text-white font-mono font-bold">[ FREQUENCY LOG ]</span>
@@ -158,11 +110,11 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-6xl mx-auto flex justify-between items-center border-t border-zinc-900 pt-3 text-[11px] text-zinc-600 z-10 font-mono">
+    <!-- Footer Dynamic Meta Info -->
+    <div class="w-full max-w-6xl mx-auto flex justify-between items-center pt-3 text-[11px] text-zinc-600 z-10 font-mono">
         <div id="sessionIdDisplay">SESSION ID: INIT...</div>
         <div id="footerStatus">STATUS: MATCHMAKING</div>
-    </footer>
+    </div>
 
     <!-- Hidden Audio Player -->
     <audio id="remote-audio" autoplay playsinline></audio>
@@ -172,7 +124,7 @@
     <script src="{{ asset('js/void-webrtc.js') }}"></script>
 
     <script>
-        // 1. Core State Variables
+        // Core State Variables
         let isMuted = false;
         let isCallActive = true;
         let localStream = null;
@@ -190,7 +142,6 @@
             sessionStorage.setItem('void_session_token', sessionToken);
         }
 
-        // Dynamic Variables from Blade Session
         const callsign = "{{ session('callsign', 'GHOST_OPERATOR') }}";
         const countryCode = "{{ session('country_code', 'ID') }}";
 
@@ -212,24 +163,19 @@
 
         const pc = new RTCPeerConnection(rtcConfig);
 
-        // 2. Lifecycle
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('sessionIdDisplay').innerText = `SESSION ID: #${sessionToken.substring(0, 10).toUpperCase()}`;
-
             await cleanupOldSession();
-
             initMicrophone();
         });
 
         async function initMicrophone() {
             try {
                 if (localStream) return;
-
                 localStream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: false
                 });
-                console.log('[VOID//WEBRTC] Microphone initialized.');
                 startHeartbeatAndMatchmaking();
             } catch (err) {
                 alert('[ERROR] Gagal mengakses mikrofon. Harap berikan izin akses mic!');
@@ -241,7 +187,6 @@
             pollInterval = setInterval(async () => {
                 if (!isCallActive) return;
 
-                // Ping Server
                 try {
                     await fetch('/api/v1/ping', {
                         method: 'POST',
@@ -259,10 +204,8 @@
                     console.error('[PING_ERROR]', err);
                 }
 
-                // Check WebRTC Signals
                 checkPendingSignals();
 
-                // Matchmaking Loop
                 if (!isMatched) {
                     try {
                         const res = await fetch('/api/v1/matchmake', {
@@ -305,8 +248,4 @@
             navigator.sendBeacon('/api/v1/leave', blob);
         });
     </script>
-
-
-</body>
-
-</html>
+</x-layouts.app>

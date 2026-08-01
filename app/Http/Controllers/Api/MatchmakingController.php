@@ -155,7 +155,6 @@ class MatchmakingController extends Controller
         return response()->json(['status' => 'success', 'message' => 'User disconnected successfully.']);
     }
 
-    // Kirim Sinyal
     public function sendSignal(Request $request)
     {
         DB::table('signals')->insert([

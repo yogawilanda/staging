@@ -21,3 +21,5 @@ Route::post('/join-room', function (Request $request) {
         'room_id'  => $request->input('room_id')
     ]);
 })->name('room.join');
+
+Route::view('/rules', 'rules')->name('rules');

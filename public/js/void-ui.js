@@ -30,6 +30,7 @@ function handleCallAction() {
 		document.getElementById('actionText').innerText = "FIND NEW CALL";
 		document.getElementById('actionBtn').className = "px-6 py-3 border border-emerald-500 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-500 hover:text-black text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-2 font-mono";
 
+		// Target Navbar & Page status elements
 		document.getElementById('statusPing').className = "w-3 h-3 bg-red-600 rounded-full";
 		document.getElementById('statusTitle').innerText = "VOID//DISCONNECTED";
 		document.getElementById('sessionText').innerText = "TRANSMISSION ENDED";
@@ -63,6 +64,7 @@ function updateMatchedUI(peer) {
 	if (isMatchedUI) return;
 	isMatchedUI = true;
 
+	// Target Navbar & Page elements
 	document.getElementById('statusPing').className = "w-3 h-3 bg-emerald-500 animate-ping rounded-full";
 	document.getElementById('statusTitle').innerText = "VOID//CONNECTED";
 	document.getElementById('sessionText').innerText = "ACTIVE PEER CONNECTION (2/2)";
