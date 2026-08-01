@@ -37,21 +37,50 @@ var countryCode = document.querySelector('#country_code')?.value || window.COUNT
 //     ]
 // };
 
+// var rtcConfig = {
+//     iceServers: [
+//         { urls: 'stun:stun.l.google.com:19302' },
+//         {
+//             urls: 'turn:free.expressturn.com:443', // Pakai port 443
+//             username: '000000002100976823',
+//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+//         },
+//         {
+//             urls: 'turns:free.expressturn.com:443', // Pakai turns (TLS) port 443
+//             username: '000000002100976823',
+//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+//         }
+//     ]
+// };
 var rtcConfig = {
     iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
         {
-            urls: 'turn:free.expressturn.com:443', // Pakai port 443
-            username: '000000002100976823',
-            credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
+            urls: "stun:stun.relay.metered.ca:80",
         },
         {
-            urls: 'turns:free.expressturn.com:443', // Pakai turns (TLS) port 443
-            username: '000000002100976823',
-            credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
-        }
-    ]
+            urls: "turn:global.relay.metered.ca:80",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
+        },
+        {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
+        },
+        {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
+        },
+    ],
 };
+
+
 
 // expose small helper used by presence.js
 function _isCallActiveRef() { return isCallActive; }
@@ -163,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // expose helper to stop heartbeat (used by END CALL action)
-function stopHeartbeat(){
+function stopHeartbeat() {
     if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
 }
 
