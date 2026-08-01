@@ -103,7 +103,7 @@ pc.getSenders().forEach(sender => {
     if (sender.track && sender.track.kind === 'audio') {
         const params = sender.getParameters();
         params.encodings = params.encodings || [{}];
-        params.encodings[0].maxBitrate = 24000; 
+        params.encodings[0].maxBitrate = 36000; 
         sender.setParameters(params);
     }
 });
