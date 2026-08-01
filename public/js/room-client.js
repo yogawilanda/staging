@@ -52,8 +52,11 @@ var countryCode = document.querySelector('#country_code')?.value || window.COUNT
 //         }
 //     ]
 // };
+// 
+
+// 1. Deklarasikan rtcConfig di paling atas
 var rtcConfig = {
-    // iceTransportPolicy: 'relay', // 
+    iceTransportPolicy: 'relay', // Wajib relay sesuai kondisi jangkauan jaringanmu
     iceServers: [
         {
             urls: "stun:stun.relay.metered.ca:80",
@@ -80,6 +83,30 @@ var rtcConfig = {
         },
     ],
 };
+
+// 2. Ambil media audio
+const stream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+    },
+    video: false
+});
+
+// 3. Buat peer connection setelah rtcConfig ada
+const pc = new RTCPeerConnection(rtcConfig);
+stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+// 4. Batasi bitrate audio untuk hemat kuota TURN
+pc.getSenders().forEach(sender => {
+    if (sender.track && sender.track.kind === 'audio') {
+        const params = sender.getParameters();
+        params.encodings = params.encodings || [{}];
+        params.encodings[0].maxBitrate = 24000; 
+        sender.setParameters(params);
+    }
+});
 
 
 
