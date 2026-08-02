@@ -23,9 +23,9 @@ var countryCode = document.querySelector('#country_code')?.value || window.COUNT
 var rtcConfig = {
     iceTransportPolicy: 'relay', // normalnya jaringan di Indonesia wajib
     iceServers: [
-        {
-            urls: "{{ env('STUN_URL_GOOGLE) }}"
-        },
+        // {
+        //     urls: "{{ env('STUN_URL_GOOGLE) }}"
+        // },
         {
             urls: "{{ env('TURN_URL_80')}}",
             username: "{{ env('TURN_USERNAME') }}",
