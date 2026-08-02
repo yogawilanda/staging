@@ -49,7 +49,15 @@ var rtcConfig = {
     ],
 };
 
+peerConnection = new RTCPeerConnection(rtcConfig);
 
+// 2. PASANG DISINI (Tepat setelah instance dibuat)
+peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+        console.log("ICE Candidate type:", event.candidate.type);
+        // nanti outputnya di F12 akan keliatan misal: "host", "srflx", atau "relay"
+    }
+};
 
 // expose small helper used by presence.js
 function _isCallActiveRef() { return isCallActive; }
