@@ -21,46 +21,33 @@ var callsign = document.querySelector('#callsign')?.value || window.CALLSIGN_OVE
 var countryCode = document.querySelector('#country_code')?.value || window.COUNTRY_OVERRIDE || 'ID';
 
 var rtcConfig = {
-    iceTransportPolicy: 'relay', // normalnya jaringan di Indonesia wajib
+    iceTransportPolicy: 'relay', // normalnya jaringan di Indonesia wajib relay.
     iceServers: [
-        // {
-        //     urls: "{{ env('STUN_URL_GOOGLE) }}"
-        // },
         {
-            urls: "{{ env('TURN_URL_80')}}",
-            username: "{{ env('TURN_USERNAME') }}",
-            credential: "{{ env('TURN_CREDENTIAL') }}",
+            urls: "stun:stun.relay.metered.ca:80",
         },
         {
-            urls: "{{ env('TURN_URL_TCP_80') }}",
-            username: "{{ env('TURN_USERNAME') }}",
-            credential: "{{ env('TURN_CREDENTIAL') }}",
+            urls: "turn:global.relay.metered.ca:80",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
         },
         {
-            urls: "{{ env('TURN_URL_443') }}",
-            username: "{{ env('TURN_USERNAME') }}",
-            credential: "{{ env('TURN_CREDENTIAL') }}",
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
         },
         {
-            urls: "{{ env('TURN_URL_TCP_443') }}",
-            username: "{{ env('TURN_USERNAME') }}",
-            credential: "{{ env('TURN_CREDENTIAL') }}",
+            urls: "turn:global.relay.metered.ca:443",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
+        },
+        {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "ce0785b171ac0155101f0f47",
+            credential: "I0z5FylhnjB8tV61",
         },
     ],
 };
-
-peerConnection = new RTCPeerConnection(rtcConfig);
-
-// 2. PASANG DISINI (Tepat setelah instance dibuat)
-peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-        console.log("ICE Candidate type:", event.candidate.type);
-        // nanti outputnya di F12 akan keliatan misal: "host", "srflx", atau "relay"
-    }
-};
-
-// expose small helper used by presence.js
-function _isCallActiveRef() { return isCallActive; }
 
 // Start general presence heartbeat for visitors and non-microphone users
 window.startPresenceHeartbeat && window.startPresenceHeartbeat({ sessionToken: sessionToken, callsign: callsign, countryCode: countryCode, isCallActiveRef: _isCallActiveRef });
