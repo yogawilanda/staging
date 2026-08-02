@@ -32,7 +32,7 @@ var rtcConfig = {
             credential: "{{ env('TURN_CREDENTIAL') }}",
         },
         {
-            urls: "env('TURN_URL_TCP_80')",
+            urls: "{{ env('TURN_URL_TCP_80') }}",
             username: "{{ env('TURN_USERNAME') }}",
             credential: "{{ env('TURN_CREDENTIAL') }}",
         },
