@@ -20,66 +20,36 @@ if (!sessionToken) {
 var callsign = document.querySelector('#callsign')?.value || window.CALLSIGN_OVERRIDE || 'GHOST_OPERATOR';
 var countryCode = document.querySelector('#country_code')?.value || window.COUNTRY_OVERRIDE || 'ID';
 
-// Minimal RTC config; void-webrtc.js may create its own peer connections
-// var rtcConfig = {
-//     iceServers: [
-//         // { urls: 'stun:stun.l.google.com:19302' },
-//         // { urls: 'stun:stun1.l.google.com:19302' },
-//         // { urls: 'stun:stun2.l.google.com:19302' },
-//         // { urls: 'stun:stun3.l.google.com:19302' },
-
-//         // ini bisa, tapi harus wifi yang sama
-//         {
-//             urls: 'turn:free.expressturn.com:3478',
-//             username: '000000002100976823',
-//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
-//         }
-//     ]
-// };
-
-// var rtcConfig = {
-//     iceServers: [
-//         { urls: 'stun:stun.l.google.com:19302' },
-//         {
-//             urls: 'turn:free.expressturn.com:443', // Pakai port 443
-//             username: '000000002100976823',
-//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
-//         },
-//         {
-//             urls: 'turns:free.expressturn.com:443', // Pakai turns (TLS) port 443
-//             username: '000000002100976823',
-//             credential: 'XZY7O7eXGx1416plt0BpR6woLJU='
-//         }
-//     ]
-// };
 var rtcConfig = {
-    iceTransportPolicy: 'relay', // normalnya jaringan di Indonesia wajib relay.
+    iceTransportPolicy: 'relay', // normalnya jaringan di Indonesia wajib
     iceServers: [
         {
-            urls: "stun:stun.relay.metered.ca:80",
+            urls: "{{ env('STUN_URL_GOOGLE) }}"
         },
         {
-            urls: "turn:global.relay.metered.ca:80",
-            username: "ce0785b171ac0155101f0f47",
-            credential: "I0z5FylhnjB8tV61",
+            urls: "{{ env('TURN_URL_80')}}",
+            username: "{{ env('TURN_USERNAME') }}",
+            credential: "{{ env('TURN_CREDENTIAL') }}",
         },
         {
-            urls: "turn:global.relay.metered.ca:80?transport=tcp",
-            username: "ce0785b171ac0155101f0f47",
-            credential: "I0z5FylhnjB8tV61",
+            urls: "env('TURN_URL_TCP_80')",
+            username: "{{ env('TURN_USERNAME') }}",
+            credential: "{{ env('TURN_CREDENTIAL') }}",
         },
         {
-            urls: "turn:global.relay.metered.ca:443",
-            username: "ce0785b171ac0155101f0f47",
-            credential: "I0z5FylhnjB8tV61",
+            urls: "env('TURN_URL_443')",
+            username: "{{ env('TURN_USERNAME') }}",
+            credential: "{{ env('TURN_CREDENTIAL') }}",
         },
         {
-            urls: "turns:global.relay.metered.ca:443?transport=tcp",
-            username: "ce0785b171ac0155101f0f47",
-            credential: "I0z5FylhnjB8tV61",
+            urls: "{{ env('TURN_URL_TCP_443') }}",
+            username: "{{ env('TURN_USERNAME') }}",
+            credential: "{{ env('TURN_CREDENTIAL') }}",
         },
     ],
 };
+
+
 
 // expose small helper used by presence.js
 function _isCallActiveRef() { return isCallActive; }
