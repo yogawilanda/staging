@@ -37,7 +37,7 @@ var rtcConfig = {
             credential: "{{ env('TURN_CREDENTIAL') }}",
         },
         {
-            urls: "env('TURN_URL_443')",
+            urls: "{{ env('TURN_URL_443') }}",
             username: "{{ env('TURN_USERNAME') }}",
             credential: "{{ env('TURN_CREDENTIAL') }}",
         },
